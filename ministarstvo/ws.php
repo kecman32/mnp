@@ -540,9 +540,9 @@ function editOperater() {
 
 		$sql = "SELECT operateri_id 
 				FROM ministarstvo.operateri 
-				WHERE korisnicko_ime = ?
-				OR email_adresa = ?;";
-		$data = [$korisnicko_ime, $email_adresa];
+				WHERE (korisnicko_ime = ? AND operateri_id <> ?)
+				OR (email_adresa = ? AND operateri_id <> ?);";
+		$data = [$korisnicko_ime, $operateri_id, $email_adresa, $operateri_id];
 		
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute($data);
@@ -554,15 +554,16 @@ function editOperater() {
 		}
 		else {
 
-			$sql = "INSERT INTO ministarstvo.operateri(korisnicko_ime, lozinka, ime, prezime, email_adresa, rola_id)
-					VALUES (?, ?, ?, ?, ?, ?);";
-			$data = [$korisnicko_ime, $hash, $ime, $prezime, $email_adresa, $rola_id];
+			$sql = "UPDATE ministarstvo.operateri
+					SET korisnicko_ime=?, ime=?, prezime=?, email_adresa=?, rola_id=?
+					WHERE operateri_id = ?;";
+			$data = [$korisnicko_ime, $ime, $prezime, $email_adresa, $rola_id, $operateri_id];
 		
 			$stmt = $pdo->prepare($sql);
 
 			if ($stmt->execute($data)) {
 			
-				$rtn = array('status' => 1, 'msg' => 'Uspesno unesen novi korisnik !');
+				$rtn = array('status' => 1, 'msg' => 'Uspesno editovan korisnik !');
 				//exit(json_encode($rtn));
 			}
 			else {
@@ -573,6 +574,43 @@ function editOperater() {
 		}
 	}
 
+	exit(json_encode($rtn));
+}
+
+
+function delOperater() {
+	if (!checkMinistarstvo('brisanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['operateri_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	}
+	else {
+		$operateri_id = $_POST['operateri_id'];
+		require_once ('../includes/db_connection.php');
+		$sql = "DELETE FROM ministarstvo.operateri
+				WHERE operateri_id = ? RETURNING operateri_id;";
+		$data = [$operateri_id];
+		$stmt = $pdo->prepare($sql);
+
+		if ($stmt->execute($data)) {
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			if (empty($result['operateri_id'])) {
+				$rtn = array('status' => 0, 'msg' => 'Doslo je do greske pri brisanju!');
+			}
+			else {
+
+				$rtn = array('status' => 1, 'msg' => 'Uspesno izbrisan korisnik !');
+			}
+			//exit(json_encode($rtn));
+		}
+		else {
+			
+			$rtn = array('status' => 0, 'msg' => 'Doslo je do greske u bazi !');
+			//exit(json_encode($rtn));
+		}
+	}
 	exit(json_encode($rtn));
 }
 
@@ -666,6 +704,14 @@ switch ($_POST['funct']) {
 	case 'get-operateri':
 		$result = getOperateri();
 		exit(json_encode($result));
+		break;
+
+	case 'edit-operater':
+		editOperater();
+		break;
+
+	case 'del-operater':
+		delOperater();
 		break;
 
 	default:
