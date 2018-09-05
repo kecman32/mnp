@@ -1,0 +1,90 @@
+
+
+
+get-razredi (svi razredi)
+
+
+get-jezici (svi jezici)
+
+
+get-predmeti (svi predmeti u odredjenom razredu)
+'razred_id'
+
+
+get-mediji (svi mediji)
+
+
+get-formati (svi formati)
+
+
+get-gradovi (svi gradovi)
+
+
+get-grad (naziv odredjenog grada)
+'grad_id'
+
+
+get-komplet (podaci o pojedinacnom kompletu)
+'kompleti_id'
+
+
+get-izdanja-iz-kompleta (sva izdanja vezana za odredjeni komplet)
+'kompleti_id'
+
+
+del-komplet (brisanje odredjenog kompleta)
+'kompleti_id'
+
+
+set-izdavac (unosenje novog izdavaca)
+'naziv'
+'pib'
+'maticni_broj'
+'grad_id'
+'lozinka'
+'adresa'
+'email'
+'telefon'
+
+
+get-izdavac (podaci o pojedinacnom izdavacu)
+'izdavac_id'
+
+
+edit-izdavac (deitovanje izdavaca)
+'naziv'
+'pib'
+'maticni_broj'
+'grad_id'
+'adresa'
+'email'
+'telefon'
+
+
+get-izdavaci (pretraga po izdavacima)
+'pretraga'
+
+
+get-sekcije (sve sekcije aplikacije)
+
+
+get-role (sve role u ministarstvu)
+
+
+set-operater (dodavanje novog operatera)
+'korisnicko_ime'
+'lozinka'
+'ime'
+'prezime'
+'email_adresa'
+'rola_id'
+
+
+get-operater (dobijanje podataka odredjenog operatera)
+'operateri_id'
+
+
+get-operateri (pretraga svih operatera po roli, sekciji i frazi)
+'pretraga'
+'rola_id'
+'sekcijeaplikacije_id'
