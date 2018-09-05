@@ -25,7 +25,7 @@
 function getMediji() {
 	//var izdanja = [1, 2, 3];
 	$.post('../ministarstvo/ws.php',{
-		funct: 'del-operater',
+		funct: 'del-izdavac',
 	// 	razred_id: 1,
 	//	jezik_id: 1,
 	// 	predmet_id: 1,
@@ -41,12 +41,12 @@ function getMediji() {
 	// 	izdanja_id: 3
 	//	naziv: 'test izdavac',
 	//	pib: '12345678',
-	//	maticni_broj: '22345678',
-	//	grad_id: 1,
+	//	maticni_broj: '42345678',
+	//	grad_id: 2,
 	//	lozinka: '1234567',
 		// potvrda_lozinke: '1234567',
 	//	adresa: 'test adresa bb',
-	//	email: 'test@test.ts',
+	//	email: 'test6@test.ts',
 	//	telefon: '011222222',
 	//  grad_id: 1,
 	//	naziv: 'test naziv kompleta 9',
@@ -55,7 +55,7 @@ function getMediji() {
 	//	kompleti_id: 18,
 	//	username: '1234567',
 	//	password: '123457',
-	//	izdavac_id: 2,
+		izdavac_id: '6',
 	//	pretraga: '',
 	//	username: 'test',
 	//	password: '123456',
@@ -67,7 +67,7 @@ function getMediji() {
 	//	prezime: 'testprezime3',
 	//	email_adresa: 'test6@testt.com',
 	//	rola_id: '2',
-		operateri_id: '4',
+	//	operateri_id: '4',
 	//	rola_id: '',
 	//	sekcijeaplikacije_id: ''
 

@@ -189,13 +189,13 @@ function setIzdavac() {
 
 		require_once ('../includes/db_connection.php');
 
-		$sql = "SELECT izdavac_id FROM izdavaci.izdavaci WHERE maticni_broj = ?;";
+		$sql = "SELECT izdavac_id FROM izdavaci.izdavaci WHERE maticni_broj = ? OR email = ?;";
 		$stmt = $pdo->prepare($sql);
-		$stmt->execute([$maticni_broj]);
+		$stmt->execute([$maticni_broj, $email]);
 		$count = $stmt->rowCount();
 
 		if ($count > 0) {
-			$rtn = array('status' => 0, 'msg' => 'Vec postoji izdavac sa tim maticnim brojem !');
+			$rtn = array('status' => 0, 'msg' => 'Maticni broj i Email moraju biti jedinstveni !');
 			exit(json_encode($rtn));
 		}
 		else {
@@ -242,20 +242,21 @@ function getIzdavac() {
 	}
 }
 
+
 function editIzdavac() {
 	if (!checkIzdavaci('izmena')) {
 		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
 		exit(json_encode($rtn));
 	}
-	if (!isset($_POST['naziv']) || !isset($_POST['pib']) || !isset($_POST['maticni_broj']) || !isset($_POST['grad_id']) || !isset($_POST['adresa']) || !isset($_POST['email']) || !isset($_POST['telefon'])) {
+	if (!isset($_POST['naziv']) || !isset($_POST['pib']) || !isset($_POST['maticni_broj']) || !isset($_POST['grad_id']) || !isset($_POST['adresa']) || !isset($_POST['email']) || !isset($_POST['telefon']) || !isset($_POST['izdavac_id'])) {
 
 		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
-		exit(json_encode($rtn));
+		
 	}
-	else if (empty($_POST['naziv']) || empty($_POST['pib']) || empty($_POST['maticni_broj']) || empty($_POST['grad_id'])) {
+	else if (empty($_POST['naziv']) || empty($_POST['pib']) || empty($_POST['maticni_broj']) || empty($_POST['grad_id']) || empty($_POST['izdavac_id'])) {
 
 		$rtn = array('status' => 0, 'msg' => 'Popunite sva polja !');
-		exit(json_encode($rtn));
+		
 	}
 	else {
 		$naziv = $_POST['naziv'];
@@ -266,41 +267,80 @@ function editIzdavac() {
 		$adresa = $_POST['adresa'];
 		$email = $_POST['email'];
 		$telefon = $_POST['telefon'];
+		$izdavac_id = $_POST['izdavac_id'];
 
 		require_once ('../includes/db_connection.php');
 
-		$sql = "SELECT izdavac_id FROM izdavaci.izdavaci WHERE maticni_broj = ?;";
+		$sql = "SELECT izdavac_id 
+				FROM izdavaci.izdavaci 
+				WHERE (maticni_broj = ? AND izdavac_id <> ?)
+				OR (email = ? AND izdavac_id <> ?);";
 		$stmt = $pdo->prepare($sql);
-		$stmt->execute([$maticni_broj]);
+		$stmt->execute([$maticni_broj, $izdavac_id, $email, $izdavac_id]);
 		$count = $stmt->rowCount();
 
 		if ($count > 0) {
-			$rtn = array('status' => 0, 'msg' => 'Vec postoji izdavac sa tim maticnim brojem !');
-			exit(json_encode($rtn));
+			$rtn = array('status' => 0, 'msg' => 'Vec postoji izdavac sa tim maticnim brojem ili email-om!');
+			
 		}
 		else {
-			$sql = 'INSERT INTO izdavaci.izdavaci(naziv, "PIB", maticni_broj, grad_id, adresa, email, telefon)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
-			$data = [$naziv, $pib, $maticni_broj, $grad_id, $adresa, $email, $telefon];
-
+			$sql = 'UPDATE izdavaci.izdavaci
+					SET naziv=?, "PIB"=?, maticni_broj=?, grad_id=?, adresa=?, email=?, telefon=?
+					WHERE izdavac_id=?;';
+			$data = [$naziv, $pib, $maticni_broj, $grad_id, $adresa, $email, $telefon, $izdavac_id];
 
 			$stmt = $pdo->prepare($sql);
 			if ($stmt->execute($data)) {
 				
-				$rtn = array('status' => 1, 'msg' => 'Uspesno unet izdavac !');
-				exit(json_encode($rtn));
+				$rtn = array('status' => 1, 'msg' => 'Uspesno editovan izdavac !');
 			}
 			else {
 				
 				$rtn = array('status' => 0, 'msg' => 'Doslo je do greske !');
-				exit(json_encode($rtn));
 			}
 		}
 
 		
 
 	}
+	exit(json_encode($rtn));
 }
+
+
+function delIzdavac() {
+	if (!checkIzdavaci('brisanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['izdavac_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslati svi podaci !');
+	}
+	else if (empty($_POST['izdavac_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Izaberite izdavaca za brisanje !');
+	}
+	else {
+		$izdavac_id = $_POST['izdavac_id'];
+		require_once ('../includes/db_connection.php');
+
+		$sql = "DELETE FROM izdavaci.izdavaci
+				WHERE izdavac_id = ?;";
+		$data = [$izdavac_id];
+		
+		$stmt = $pdo->prepare($sql);
+		if ($stmt->execute($data)) {
+			
+			$rtn = array('status' => 1, 'msg' => 'Uspesno izbrisan izdavac !');
+			
+		}
+		else {
+			
+			$rtn = array('status' => 0, 'msg' => 'Doslo je do greske !');
+			
+		}
+	}
+	exit(json_encode($rtn));
+}
+
 
 function getIzdavaci() {
 	if (!checkIzdavaci('citanje')) {
@@ -670,6 +710,14 @@ switch ($_POST['funct']) {
 
 	case 'set-izdavac':
 		setIzdavac();
+		break;
+
+	case 'edit-izdavac':
+		editIzdavac();
+		break;
+
+	case 'del-izdavac':
+		delIzdavac();
 		break;
 
 	case 'get-izdavac':

@@ -51,7 +51,7 @@ get-izdavac (podaci o pojedinacnom izdavacu)
 'izdavac_id'
 
 
-edit-izdavac (deitovanje izdavaca)
+edit-izdavac (editovanje izdavaca)
 'naziv'
 'pib'
 'maticni_broj'
@@ -59,6 +59,11 @@ edit-izdavac (deitovanje izdavaca)
 'adresa'
 'email'
 'telefon'
+'izdavac_id'
+
+
+del-izdavac (brisanje izdavaca)
+'izdavac_id'
 
 
 get-izdavaci (pretraga po izdavacima)
@@ -88,3 +93,17 @@ get-operateri (pretraga svih operatera po roli, sekciji i frazi)
 'pretraga'
 'rola_id'
 'sekcijeaplikacije_id'
+
+
+edit-operater (editovanje operatera u ministarstvu)
+'operateri_id'
+'korisnicko_ime'
+'ime'
+'prezime'
+'email_adresa'
+'rola_id'
+
+
+del-operater (brisanje operatera u ministarstvu)
+'operateri_id'
+
