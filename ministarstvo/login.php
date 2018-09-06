@@ -6,7 +6,7 @@ session_start();
 include_once("../includes/tools.php");
 include_once("../includes/jwt_helper.php");
 include_once("../config/security.php");
-
+include_once("../config/token.php");
 
 	
 if (isset($_POST['username']) && isset($_POST['password'])) {
@@ -37,6 +37,9 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
 		// exit();
 			$token = [];
 			$token['operateri_id'] = $row['operateri_id'];
+			$token['ime'] = $row['ime'];
+			$token['prezime'] = $row['prezime'];
+			$token['exp'] = time() + (TOKEN_EXP*3600);
 			$rola = $row['rola_id'];
 
 			$sql = "SELECT ministarstvo.sekcije_aplikacije.naziv, ministarstvo.prava_pristupa.citanje, ministarstvo.prava_pristupa.izmena, ministarstvo.prava_pristupa.brisanje

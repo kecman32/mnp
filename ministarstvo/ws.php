@@ -2,10 +2,8 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS");
 header("Access-Control-Allow-Headers', 'Content-Type,Accept");
+
 session_start();
-
-//$_SESSION['izdavac_id'] = 1;
-
 
 require_once("../includes/tools.php");
 require_once("../includes/jwt_helper.php");
@@ -21,8 +19,12 @@ else {
 	
 	$token = JWT::decode($_POST['token'], ENC_KEY);
 	if (empty($token)) {
-		echo "pogresan token";
-		die();
+		$rtn = array('status' => 0, 'msg' => 'pogresan token');
+		exit(json_encode($rtn));
+	}
+	else if($token->exp < time()) {
+		$rtn = array('status' => 0, 'msg' => 'istekao token');
+		exit(json_encode($rtn));
 	}
 	else {
 		//echo $token->Министарство->citanje;
