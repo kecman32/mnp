@@ -657,6 +657,53 @@ function delOperater() {
 }
 
 
+function pregledRola() {
+
+	if (!checkMinistarstvo('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['pretraga'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	}
+	else {
+
+		$pretraga = "%".$_POST['pretraga']."%";
+
+		$sql = "SELECT rola_id, naziv
+				FROM ministarstvo.role
+				WHERE naziv LIKE ?
+				ORDER BY naziv;";
+		$data = [$pretraga];
+		require_once ('../includes/db_connection.php');
+		
+		$stmt = $pdo->prepare($sql);
+
+		if ($stmt->execute($data)) {
+			$role = $stmt->fetchAll();
+			foreach ($role as $rola) {
+				$sql = "SELECT COUNT(operateri_id) as br
+						FROM ministarstvo.operateri
+						WHERE rola_id = ?";
+				$data = [$rola->rola_id];
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute($data);
+				$broj = $stmt->fetch(PDO::FETCH_ASSOC);
+				$rola->broj_operatera = $broj['br'];
+			}
+			$rtn = array('status' => 1, 'msg' => 'uspesno', 'result' => $role);
+		}
+		else {
+		$rtn = array('status' => 0, 'msg' => 'Problem sa bazom. Probajte ponovo !');
+		}
+
+		//print_r($role);
+
+	}
+	exit(json_encode($rtn));
+
+}
+
 
 switch ($_POST['funct']) {
 	
@@ -762,6 +809,10 @@ switch ($_POST['funct']) {
 
 	case 'del-operater':
 		delOperater();
+		break;
+
+	case 'pregled-rola':
+		pregledRola();
 		break;
 
 	default:
