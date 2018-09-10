@@ -376,9 +376,230 @@ function setRola() {
 		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
 		exit(json_encode($rtn));
 	}
+	if (!isset($_POST['naziv']) || !isset($_POST['sekcije'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslati svi podaci !');
+		
+	}
+	else if (empty($_POST['naziv'])) {
+		$rtn = array('status' => 0, 'msg' => 'Morate uneti naziv uloge !');
+	}
+	else {
+		$naziv = $_POST['naziv'];
+		$sekcije = json_decode($_POST['sekcije']);
+		// print_r($sekcije);
+		// foreach ($sekcije as $sekcija_id => $prava) {
+		// 	echo $sekcija_id."<br>";
+		// 	print_r($prava);
+					
+		// 		}
+		// exit();
 
+		$sql = "SELECT rola_id
+				FROM ministarstvo.role
+				WHERE naziv = ?;";
+		$data = [$naziv];
+
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$count = $stmt->rowCount();
+
+		if ($count > 0) {
+
+			$rtn = array('status' => 0, 'msg' => 'Vec postoji rola sa tim imenom !');
+		}
+		else {
+			$sql = "INSERT INTO ministarstvo.role(naziv)
+					VALUES (?) RETURNING rola_id;";
+			$stmt = $pdo->prepare($sql);
+			if ($stmt->execute($data)) {
+				$result = $stmt->fetch(PDO::FETCH_ASSOC);
+				$rola_id = $result['rola_id'];
+				foreach ($sekcije as $sekcija_id => $prava) {
+					$citanje = 0;
+					$izmena =  0;
+					$brisanje = 0;
+
+					if ($prava->brisanje) {
+						$citanje = 1;
+						$izmena =  1;
+						$brisanje = 1;
+					}
+					else if ($prava->izmena) {
+						$citanje = 1;
+						$izmena = 1;
+					}
+					else if ($prava->citanje) {
+						$citanje = 1;
+					}
+					$sql = "INSERT INTO ministarstvo.prava_pristupa(rola_id, sekcijaaplikacije_id, citanje, izmena, brisanje)
+							VALUES (?, ?, ?, ?, ?);";
+					$data = [$rola_id, $sekcija_id, $citanje, $izmena, $brisanje];
+					$stmt = $pdo->prepare($sql);
+					$stmt->execute($data);
+					
+				}
+				$rtn = array('status' => 1, 'msg' => 'Uspesno uneta rola !');
+			
+			}
+			else {
+				
+				$rtn = array('status' => 0, 'msg' => 'Doslo je do greske u bazi !');
+			}
+		}
+	}
+	exit(json_encode($rtn));
 
 }
+
+
+function editRola() {
+	if (!checkMinistarstvo('izmena')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['naziv']) || !isset($_POST['sekcije']) || !isset($_POST['rola_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslati svi podaci !');
+		
+	}
+	else if (empty($_POST['naziv'])) {
+		$rtn = array('status' => 0, 'msg' => 'Morate uneti naziv uloge !');
+	}
+	else {
+		$naziv = $_POST['naziv'];
+		$sekcije = json_decode($_POST['sekcije']);
+		$rola_id = $_POST['rola_id'];
+
+		$sql = "SELECT rola_id
+				FROM ministarstvo.role
+				WHERE naziv = ? AND rola_id <> ?;";
+		$data = [$naziv, $rola_id];
+
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$count = $stmt->rowCount();
+
+		if ($count > 0) {
+
+			$rtn = array('status' => 0, 'msg' => 'Vec postoji rola sa tim imenom !');
+		}
+		else {
+			$sql = "UPDATE ministarstvo.role
+					SET naziv=?
+					WHERE rola_id=?;";
+			$stmt = $pdo->prepare($sql);
+			if ($stmt->execute($data)) {
+				
+				foreach ($sekcije as $sekcija_id => $prava) {
+					$citanje = 0;
+					$izmena =  0;
+					$brisanje = 0;
+
+					if ($prava->brisanje) {
+						$citanje = 1;
+						$izmena =  1;
+						$brisanje = 1;
+					}
+					else if ($prava->izmena) {
+						$citanje = 1;
+						$izmena = 1;
+					}
+					else if ($prava->citanje) {
+						$citanje = 1;
+					}
+					$sql = "UPDATE ministarstvo.prava_pristupa
+							SET citanje=?, izmena=?, brisanje=?
+							WHERE rola_id=? AND sekcijaaplikacije_id=?;";
+					$data = [$citanje, $izmena, $brisanje, $rola_id, $sekcija_id];
+					$stmt = $pdo->prepare($sql);
+					$stmt->execute($data);
+					
+				}
+				$rtn = array('status' => 1, 'msg' => 'Uspesno izmenjena rola !');
+			
+			}
+			else {
+				
+				$rtn = array('status' => 0, 'msg' => 'Doslo je do greske u bazi !');
+			}
+		}
+	}
+	exit(json_encode($rtn));
+
+}
+
+
+function delRola() {
+	if (!checkMinistarstvo('brisanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['rola_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	}
+	else {
+		$rola_id = $_POST['rola_id'];
+		$sql = "SELECT operateri_id 
+				FROM ministarstvo.operateri
+				WHERE rola_id = ?";
+		$data = [$rola_id];
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$count = $stmt->rowCount();
+
+		if ($count > 0) {
+
+			$rtn = array('status' => 0, 'msg' => 'Rola ne moze biti obrisana jer postoje operateri sa ovom rolom !');
+		}
+		else {
+			$sql = "DELETE FROM ministarstvo.prava_pristupa
+					WHERE rola_id = ?;";
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute($data);
+			$sql = "DELETE FROM ministarstvo.role
+					WHERE rola_id = ?;";
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute($data);
+			$rtn = array('status' => 1, 'msg' => 'Uspesno izbrisana rola !');
+		}
+	}
+	exit(json_encode($rtn));
+}
+
+
+function getRola() {
+	if (!checkMinistarstvo('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['rola_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	}
+	else {
+		$rola_id = $_POST['rola_id'];
+		$sql = "SELECT * FROM ministarstvo.role WHERE rola_id = ?";
+		$data = [$rola_id];
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$sql = "SELECT ministarstvo.prava_pristupa.sekcijaaplikacije_id, ministarstvo.sekcije_aplikacije.naziv, citanje, izmena, brisanje
+				FROM ministarstvo.prava_pristupa, ministarstvo.sekcije_aplikacije
+				WHERE rola_id = ?
+				AND ministarstvo.prava_pristupa.sekcijaaplikacije_id = ministarstvo.sekcije_aplikacije.sekcijeaplikacije_id;";
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$result['sekcije'] = $stmt->fetchAll();
+
+		$rtn = $result;
+
+	}
+	exit(json_encode($rtn));
+}
+
 
 function getSekcije() {
 	if (!checkMinistarstvo('citanje')) {
@@ -813,6 +1034,22 @@ switch ($_POST['funct']) {
 
 	case 'pregled-rola':
 		pregledRola();
+		break;
+
+	case 'set-rola':
+		setRola();
+		break;
+
+	case 'get-rola':
+		getRola();
+		break;
+
+	case 'edit-rola':
+		editRola();
+		break;
+
+	case 'del-rola':
+		delRola();
 		break;
 
 	default:
