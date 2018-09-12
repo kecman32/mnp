@@ -70,6 +70,46 @@ get-izdavaci (pretraga po izdavacima)
 'pretraga'
 
 
+get-all-izdavaci (svi izdavaci , svi podaci sem lozinke)
+
+
+set-rola (setovanje role)
+'naziv'
+'sekcije' (niz tipa 
+{
+	'1': {
+		'citanje': true,
+		'izmena' : true,
+		'brisanje': true
+	},
+	'2': {
+		'citanje': true,
+		'izmena' : true,
+		'brisanje': false
+	},
+	'3': {
+		'citanje': false,
+		'izmena' : false,
+		'brisanje': false
+	}
+})
+
+
+edit-rola
+'rola_id'
+'naziv'
+'sekcije' (kao iz set-rola)
+
+
+del-rola (brisanje role)
+'rola_id'
+
+
+getRola (dobijanje naziva role i njenih pristupa po sekcijama)
+'rola_id'
+
+
+
 get-sekcije (sve sekcije aplikacije)
 
 
@@ -107,3 +147,6 @@ edit-operater (editovanje operatera u ministarstvu)
 del-operater (brisanje operatera u ministarstvu)
 'operateri_id'
 
+
+pregled-rola (pretrazivanje svih rola po nazivu i ispisivanje broja operatera sa tom rolom)
+'pretraga'

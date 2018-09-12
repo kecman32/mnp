@@ -43,7 +43,7 @@ var post = JSON.stringify(forma);
 function getMediji() {
 	//var izdanja = [1, 2, 3];
 	$.post('../ministarstvo/ws.php',{
-		funct: 'get-rola',
+		funct: 'get-all-izdavaci',
 	// 	razred_id: 1,
 	//	jezik_id: 1,
 	// 	predmet_id: 1,
@@ -77,14 +77,14 @@ function getMediji() {
 	//	pretraga: 'test',
 	//	username: 'test',
 	//	password: '123456',
-		token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjEsImltZSI6InRlc3RpbWUiLCJwcmV6aW1lIjoidGVzdHByZXppbWUiLCJleHAiOjE1MzY1NjA5MzUsIlx1MDQxY1x1MDQzOFx1MDQzZFx1MDQzOFx1MDQ0MVx1MDQ0Mlx1MDQzMFx1MDQ0MFx1MDQ0MVx1MDQ0Mlx1MDQzMlx1MDQzZSI6eyJjaXRhbmplIjp0cnVlLCJpem1lbmEiOnRydWUsImJyaXNhbmplIjp0cnVlfSwiXHUwNDI4XHUwNDNhXHUwNDNlXHUwNDNiXHUwNDM1Ijp7ImNpdGFuamUiOnRydWUsIml6bWVuYSI6dHJ1ZSwiYnJpc2FuamUiOnRydWV9LCJcdTA0MThcdTA0MzdcdTA0MzRcdTA0MzBcdTA0MzJcdTA0MzBcdTA0NDdcdTA0MzgiOnsiY2l0YW5qZSI6dHJ1ZSwiaXptZW5hIjp0cnVlLCJicmlzYW5qZSI6dHJ1ZX19.usyhBPkb2nNVvcq4DnSNGS9bvFbDhZ6QpHDBJBkhffg',
+		token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjEsImltZSI6InRlc3RpbWUiLCJwcmV6aW1lIjoidGVzdHByZXppbWUiLCJleHAiOjE1MzY5MjQ0MzIsIlx1MDQxY1x1MDQzOFx1MDQzZFx1MDQzOFx1MDQ0MVx1MDQ0Mlx1MDQzMFx1MDQ0MFx1MDQ0MVx1MDQ0Mlx1MDQzMlx1MDQzZSI6eyJjaXRhbmplIjp0cnVlLCJpem1lbmEiOnRydWUsImJyaXNhbmplIjp0cnVlfSwiXHUwNDI4XHUwNDNhXHUwNDNlXHUwNDNiXHUwNDM1Ijp7ImNpdGFuamUiOnRydWUsIml6bWVuYSI6dHJ1ZSwiYnJpc2FuamUiOnRydWV9LCJcdTA0MThcdTA0MzdcdTA0MzRcdTA0MzBcdTA0MzJcdTA0MzBcdTA0NDdcdTA0MzgiOnsiY2l0YW5qZSI6dHJ1ZSwiaXptZW5hIjp0cnVlLCJicmlzYW5qZSI6dHJ1ZX19.u2XYkh3u0DluojVYPRJ3h0dCQIQ2PsLxb-Ngo5jXsiQ',
 	//	token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjJ9.csGK-Af6BPGF3f745wM39qQLMdf82rMTdRuJzTvN5G0',
 	//	korisnicko_ime: 'test6',
 	//	lozinka: '654321',
 	//	ime: 'testime3',
 	//	prezime: 'testprezime3',
 	//	email_adresa: 'test6@testt.com',
-		rola_id: '6',
+	//	rola_id: '6',
 	//	operateri_id: '4',
 	//	rola_id: '',
 	//	sekcijeaplikacije_id: '',

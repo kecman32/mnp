@@ -371,6 +371,21 @@ function getIzdavaci() {
 }
 
 
+function getAllIzdavaci() {
+	if (!checkIzdavaci('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	
+	$sql = 'SELECT izdavac_id, izdavaci.izdavaci.naziv, "PIB", maticni_broj, pratece.gradovi.naziv as grad, adresa, email, telefon
+			FROM izdavaci.izdavaci, pratece.gradovi
+			WHERE izdavaci.izdavaci.grad_id = pratece.gradovi.grad_id ORDER BY izdavaci.izdavaci.naziv;';
+	
+	return exec_and_return($sql);
+	
+}
+
+
 function setRola() {
 	if (!checkMinistarstvo('izmena')) {
 		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
@@ -997,6 +1012,11 @@ switch ($_POST['funct']) {
 
 	case 'get-izdavaci':
 		$result = getIzdavaci();
+		exit(json_encode($result));
+		break;
+
+	case 'get-all-izdavaci':
+		$result = getAllIzdavaci();
 		exit(json_encode($result));
 		break;
 

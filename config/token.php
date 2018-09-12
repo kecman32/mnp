@@ -1,3 +1,3 @@
 <?php
-	define("TOKEN_EXP", 8);
+	define("TOKEN_EXP", 96);
 ?>
