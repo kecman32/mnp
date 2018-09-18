@@ -38,15 +38,18 @@ var forma = {
 		'brisanje': false
 	}
 };
+var izdanja = [55, 56, 57];
 var post = JSON.stringify(forma);
+var izdanjapost = JSON.stringify(izdanja);
 
 function getMediji() {
 	//var izdanja = [1, 2, 3];
-	$.post('../ministarstvo/ws.php',{
-		funct: 'get-all-izdavaci',
-	// 	razred_id: 1,
-	//	jezik_id: 1,
-	// 	predmet_id: 1,
+	$.post('../skole/ws.php',{
+		funct: 'del-izbor-kompleta',
+	//	razred_id: '1',
+	//	jezik_id: '1',
+	// 	predmet_id: '1',
+	// 	status: -1,
 	// 	naziv: 'test naziv 3',
 	// 	autori: 'test autorr, tesst autor 22',
 	// 	naziv_udzb_jedinice: 'test udz jedinica',
@@ -55,8 +58,8 @@ function getMediji() {
 	// 	format_id: 4,
 	// 	mediji_id: 1,
 	// 	br_strana: 54,
-	//    pretraga: 'a',
-	// 	izdanja_id: 3
+	//    pretraga: '',
+	// 	izdanja_id: 1
 	//	naziv: 'test izdavac',
 	//	pib: '12345678',
 	//	maticni_broj: '42345678',
@@ -70,14 +73,14 @@ function getMediji() {
 	//	naziv: 'test naziv kompleta 9',
 	//	resenje: 'test resenje 9',
 	//	izdanja: izdanja,
-	//	kompleti_id: 18,
+	//	kompleti_id: 72,
 	//	username: '1234567',
 	//	password: '123457',
 	//	izdavac_id: '6',
 	//	pretraga: 'test',
 	//	username: 'test',
 	//	password: '123456',
-		token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjEsImltZSI6InRlc3RpbWUiLCJwcmV6aW1lIjoidGVzdHByZXppbWUiLCJleHAiOjE1MzY5MjQ0MzIsIlx1MDQxY1x1MDQzOFx1MDQzZFx1MDQzOFx1MDQ0MVx1MDQ0Mlx1MDQzMFx1MDQ0MFx1MDQ0MVx1MDQ0Mlx1MDQzMlx1MDQzZSI6eyJjaXRhbmplIjp0cnVlLCJpem1lbmEiOnRydWUsImJyaXNhbmplIjp0cnVlfSwiXHUwNDI4XHUwNDNhXHUwNDNlXHUwNDNiXHUwNDM1Ijp7ImNpdGFuamUiOnRydWUsIml6bWVuYSI6dHJ1ZSwiYnJpc2FuamUiOnRydWV9LCJcdTA0MThcdTA0MzdcdTA0MzRcdTA0MzBcdTA0MzJcdTA0MzBcdTA0NDdcdTA0MzgiOnsiY2l0YW5qZSI6dHJ1ZSwiaXptZW5hIjp0cnVlLCJicmlzYW5qZSI6dHJ1ZX19.u2XYkh3u0DluojVYPRJ3h0dCQIQ2PsLxb-Ngo5jXsiQ',
+	//	token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjEsImltZSI6InRlc3RpbWUiLCJwcmV6aW1lIjoidGVzdHByZXppbWUiLCJleHAiOjE1Mzc2MDg2NTgsIlx1MDQxY1x1MDQzOFx1MDQzZFx1MDQzOFx1MDQ0MVx1MDQ0Mlx1MDQzMFx1MDQ0MFx1MDQ0MVx1MDQ0Mlx1MDQzMlx1MDQzZSI6eyJjaXRhbmplIjp0cnVlLCJpem1lbmEiOnRydWUsImJyaXNhbmplIjp0cnVlfSwiXHUwNDI4XHUwNDNhXHUwNDNlXHUwNDNiXHUwNDM1Ijp7ImNpdGFuamUiOnRydWUsIml6bWVuYSI6dHJ1ZSwiYnJpc2FuamUiOnRydWV9LCJcdTA0MThcdTA0MzdcdTA0MzRcdTA0MzBcdTA0MzJcdTA0MzBcdTA0NDdcdTA0MzgiOnsiY2l0YW5qZSI6dHJ1ZSwiaXptZW5hIjp0cnVlLCJicmlzYW5qZSI6dHJ1ZX19.Q4-vBCOjNgsxBN1tfxg6vjq5jcFueXf7jZxQakkEIuw',
 	//	token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcGVyYXRlcmlfaWQiOjJ9.csGK-Af6BPGF3f745wM39qQLMdf82rMTdRuJzTvN5G0',
 	//	korisnicko_ime: 'test6',
 	//	lozinka: '654321',
@@ -90,7 +93,9 @@ function getMediji() {
 	//	sekcijeaplikacije_id: '',
 	//	naziv: 'test_rola2',
 	//	sekcije: post
-
+	//	izdanja: izdanjapost,
+	//	kompleti_id: 77,
+	izborkompleta_id: '10'
 
 
 	}, function(data){

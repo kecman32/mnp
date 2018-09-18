@@ -142,12 +142,16 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 
 
 
-foreach ($logins as $log) {
+// foreach ($logins as $log) {
 	
-	$sql = "INSERT INTO skole.operateri(skola_id, osoba_id, username, lozinka)
-	VALUES (?, ?, ?, ?);";
+// 	$sql = "INSERT INTO skole.operateri(skola_id, osoba_id, username, lozinka)
+// 	VALUES (?, ?, ?, ?);";
 
-	$data = [$log['ustanova_id'], $log['osoba_id'], $log['username'], $log['lozinka']];
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute($data);
-}
+// 	$data = [$log['ustanova_id'], $log['osoba_id'], $log['username'], $log['lozinka']];
+// 	$stmt = $pdo->prepare($sql);
+// 	$stmt->execute($data);
+// }
+
+
+$jezici = ['Српски језик', 'Страни језик', 'Остало', 'Албански језик', 'Босански језик', 'Бугарски језик', 'Маћарски језик', 'Румунски језик', 'Русински језик', 'Словачки језик', 'Хрватски језик'];
+

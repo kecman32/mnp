@@ -28,6 +28,13 @@ get-komplet (podaci o pojedinacnom kompletu)
 'kompleti_id'
 
 
+get-kompleti (svi kompleti, po razredu, jeziku, predmetu, statusu)
+'rezred_id'
+'jezik_id'
+'predmet_id'
+'status'
+
+
 get-izdanja-iz-kompleta (sva izdanja vezana za odredjeni komplet)
 'kompleti_id'
 
@@ -150,3 +157,11 @@ del-operater (brisanje operatera u ministarstvu)
 
 pregled-rola (pretrazivanje svih rola po nazivu i ispisivanje broja operatera sa tom rolom)
 'pretraga'
+
+
+get-profil (dobijanje podataka o ulogovanom korisniku)
+
+
+edit-status-kompleta (editovanje statusa kompleta)
+'kompleti_id'
+'status' (0 ili 1)

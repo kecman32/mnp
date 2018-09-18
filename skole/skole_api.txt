@@ -1,0 +1,53 @@
+get-razredi
+
+get-jezici
+
+get-predmeti
+'razred_id'
+'jezik_id'
+
+get-mediji
+
+
+get-formati
+
+
+get-gradovi
+
+
+get-grad
+'grad_id'
+
+
+get-komplet
+'kompleti_id'
+
+
+
+get-kompleti
+'razred_id'
+'jezik_id'
+'predmet_id'
+
+
+get-izdanja-iz-kompleta
+'kompleti_id'
+
+
+set-izbor
+'kompleti_id'
+'izdanja' (ovo bi trebalo da bude niz sa izdanja_id izdanja koja su izabrana kao obavezna izdanja iz kompleta npr [55, 56, 57])
+
+
+get-izbor-kompleta (izabrani kompleti od strane skole za odredjeni razred, predmet, jezik)
+'razred_id'
+'jezik_id'
+'predmet_id'
+
+
+get-izbor-izdanja (sva izdanja iz izabranog kompleta sa informacijom da li su izabrana kao obavezna ili ne)
+'izborkompleta_id'
+
+
+del-izbor-kompleta (brisanje izabranog kompleta)
+'izborkompleta_id'

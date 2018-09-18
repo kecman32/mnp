@@ -12,7 +12,8 @@ require_once("../includes/min_provera.php");
 
 
 if (!isset($_POST['token'])) {
-	exit();
+	$rtn = array('status' => 0, 'msg' => 'niste ulogovani');
+	exit(json_encode($rtn));
 	die();
 }
 else {
@@ -28,6 +29,7 @@ else {
 	}
 	else {
 		//echo $token->Министарство->citanje;
+		//print_r($token);
 	}
 } 
 
@@ -109,12 +111,46 @@ function getKomplet() {
 	}
 	$komplet_id = $_POST['kompleti_id'];
 
-	$sql = "SELECT kompleti_id, naziv, resenje_ministarstva, izdavac_id, predmet_id, razred_id, jezik_id, status
-			FROM izdanja.kompleti
-			WHERE kompleti_id = ?;";
+	$sql = "SELECT kompleti_id, izdanja.kompleti.naziv, resenje_ministarstva, izdanja.kompleti.izdavac_id, izdavaci.izdavaci.naziv as izdavac_naziv, predmet_id, razred_id, jezik_id, status
+			FROM izdanja.kompleti, izdavaci.izdavaci
+			WHERE kompleti_id = ?
+			AND izdanja.kompleti.izdavac_id = izdavaci.izdavaci.izdavac_id;";
 	$data = [$komplet_id];
 
 	return exec_and_return($sql, $data);		
+}
+
+
+function getKompleti() {
+	if (!checkIzdavaci('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['razred_id']) || !isset($_POST['jezik_id']) || !isset($_POST['predmet_id']) || !isset($_POST['status'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+		exit(json_encode($rtn));
+	}
+	else {
+
+		$_POST['razred_id'] > 0 ? $razred = $_POST['razred_id'] :	$razred = "%";
+		$_POST['jezik_id'] > 0 ? $jezik_nastave = $_POST['jezik_id'] : $jezik_nastave = "%";
+		$_POST['predmet_id'] > 0 ? $predmet = $_POST['predmet_id'] : $predmet = "%";
+		$_POST['status'] < 0 ? $status = "%" : $status = $_POST['status'];
+
+		$sql = "SELECT kompleti_id, izdanja.kompleti.naziv, resenje_ministarstva, izdanja.kompleti.izdavac_id, izdavaci.izdavaci.naziv as izdavac_naziv, predmet_id, razred_id, jezik_id, status
+				FROM izdanja.kompleti, izdavaci.izdavaci
+				WHERE izdanja.kompleti.izdavac_id = izdavaci.izdavaci.izdavac_id
+				AND status::text LIKE :status
+				AND razred_id::text LIKE :razred_id
+				AND jezik_id::text LIKE :jezik_id
+				AND predmet_id::text LIKE :predmet_id
+				ORDER BY razred_id DESC;";
+
+		$data = ['status' => $status, 'razred_id' => $razred, 'jezik_id' => $jezik_nastave, 'predmet_id' => $predmet];
+		return exec_and_return($sql, $data);
+	}
+	
+
 }
 
 
@@ -356,7 +392,7 @@ function getIzdavaci() {
 	else {
 		
 		$pretraga = "%".$_POST['pretraga']."%";
-		$sql = 'SELECT izdavac_id, izdavaci.izdavaci.naziv, "PIB", maticni_broj, pratece.gradovi.naziv as grad, adresa, email, telefon
+		$sql = 'SELECT izdavac_id, izdavaci.izdavaci.naziv, "PIB", maticni_broj, pratece.gradovi.naziv as grad, izdavaci.izdavaci.grad_id, adresa, email, telefon
 				FROM izdavaci.izdavaci, pratece.gradovi
 				WHERE izdavaci.izdavaci.grad_id = pratece.gradovi.grad_id
 				AND (izdavaci.izdavaci.naziv LIKE :pretraga
@@ -766,7 +802,7 @@ function getOperateri() {
 		$in  = str_repeat('?,', count($role) - 1) . '?';
 		//echo $in;
 
-		$sql = "SELECT operateri_id, korisnicko_ime, ime, prezime, email_adresa, ministarstvo.role.naziv
+		$sql = "SELECT operateri_id, korisnicko_ime, ime, prezime, email_adresa, ministarstvo.role.naziv, ministarstvo.operateri.rola_id
 				FROM ministarstvo.operateri, ministarstvo.role
 				WHERE ministarstvo.operateri.rola_id = ministarstvo.role.rola_id
 				AND ministarstvo.operateri.rola_id::text LIKE ?
@@ -940,21 +976,78 @@ function pregledRola() {
 
 }
 
+function getProfil() {
+	global $token;
+	$operateri_id = $token->operateri_id;
+	echo $operateri_id;
+	$sql = "SELECT operateri_id, korisnicko_ime, ime, prezime, email_adresa, ministarstvo.operateri.rola_id, ministarstvo.role.naziv as rola_naziv
+			FROM ministarstvo.operateri, ministarstvo.role
+			WHERE ministarstvo.operateri.rola_id = ministarstvo.role.rola_id
+			AND operateri_id = ?;";
+	$data = [$operateri_id];
+	return exec_and_return($sql, $data);
+}
+
+
+
+function editStatusKompleta() {
+	if (!checkIzdavaci('izmena')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['kompleti_id']) || !isset($_POST['status'])){
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	}
+	else {
+		$komplet_id = $_POST['kompleti_id'];
+		$_POST['status'] == 0 ? $status = 0 : $status = 1;
+
+		$sql = "UPDATE izdanja.kompleti
+				SET status = ?
+				WHERE kompleti_id = ?;";
+		$data = [$status, $komplet_id];
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+
+		if ($stmt->execute($data)) {
+			$rtn = array('status' => 1, 'msg' => 'Uspesno editovan status !');
+		}
+		else {
+			$rtn = array('status' => 0, 'msg' => 'Doslo je do greske !');
+		}
+
+	}
+	exit(json_encode($rtn));
+}
+
+function editPassword() {
+
+}
+
 
 switch ($_POST['funct']) {
 	
 	case 'get-razredi':
 		$result = getRazredi();
+		$arr = ["razred_id" => 0, "naziv" => "Svi"];
+		$obj = (object) $arr;
+		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 
 	case 'get-jezici':
 		$result = getJezici();
+		$arr = ["jezik_id" => 0, "naziv" => "Svi"];
+		$obj = (object) $arr;
+		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 
 	case 'get-predmeti':
 		$result = getPredmeti();
+		$arr = ["predmet_id" => 0, "naziv" => "Svi"];
+		$obj = (object) $arr;
+		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 
@@ -983,6 +1076,12 @@ switch ($_POST['funct']) {
 		$result = getKomplet();
 		exit(json_encode($result));
 		break;
+
+	case 'get-kompleti':
+		$result = getKompleti();
+		exit(json_encode($result));
+		break;
+
 
 	case 'get-izdanja-iz-kompleta':
 		$result = getIzdanjaIzKompleta();
@@ -1070,6 +1169,15 @@ switch ($_POST['funct']) {
 
 	case 'del-rola':
 		delRola();
+		break;
+
+	case 'edit-status-kompleta':
+		editStatusKompleta();
+		break;
+
+	case 'get-profil':
+		$result = getProfil();
+		exit(json_encode($result));
 		break;
 
 	default:

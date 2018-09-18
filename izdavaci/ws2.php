@@ -173,7 +173,7 @@ function getAllIzdanja() {
 	global $izdavac_id;		
 	$pretraga = "%".$_POST['pretraga']."%";
 
-	$sql = "SELECT izdanja.izdanja.idanja_id, izdanja.izdanja.naziv, izdanja.izdanja.autori, izdanja.izdanja.resenje_ministarstva, izdanja.izdanja.naziv_udzb_jedinice, izdanja.izdanja.formatizdanja_id, pratece.formati_izdanja.naziv as format, izdanja.izdanja.broj_strana, jezici_id, izdanja.izdanja.godina_izdanja, razredi_id, izdavac_id, izdanja.izdanja.mediji_id, pratece.mediji.naziv as mediji, predmet_id
+	$sql = "SELECT izdanja.izdanja.idanja_id, izdanja.izdanja.naziv, izdanja.izdanja.autori, izdanja.izdanja.resenje_ministarstva, izdanja.izdanja.naziv_udzb_jedinice, pratece.formati_izdanja.naziv as format, izdanja.izdanja.broj_strana, jezici_id, izdanja.izdanja.godina_izdanja, razredi_id, izdavac_id, pratece.mediji.naziv as mediji, predmet_id
 	FROM izdanja.izdanja, pratece.formati_izdanja, pratece.mediji
 	WHERE izdanja.izdanja.formatizdanja_id = pratece.formati_izdanja.formatizdanja_id
 	AND izdanja.izdanja.mediji_id = pratece.mediji.mediji_id
@@ -191,7 +191,11 @@ function getAllIzdanja() {
 	return exec_and_return($sql, $data);
 }
 
-function getIzdanje () {
+function getIzdanje() {
+	if (!isset($_POST['izdanja_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+		exit(json_encode($rtn));
+	}
 	$izdanja_id = $_POST['izdanja_id'];
 	$sql = "SELECT idanja_id, naziv, autori, resenje_ministarstva, naziv_udzb_jedinice, formatizdanja_id, broj_strana, jezici_id, godina_izdanja, razredi_id, izdavac_id, mediji_id, predmet_id
 			FROM izdanja.izdanja
