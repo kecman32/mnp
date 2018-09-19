@@ -45,9 +45,9 @@ var izdanjapost = JSON.stringify(izdanja);
 function getMediji() {
 	//var izdanja = [1, 2, 3];
 	$.post('../skole/ws.php',{
-		funct: 'del-izbor-kompleta',
-	//	razred_id: '1',
-	//	jezik_id: '1',
+		funct: 'get-predmeti',
+		razred_id: '1',
+		jezik_id: '1',
 	// 	predmet_id: '1',
 	// 	status: -1,
 	// 	naziv: 'test naziv 3',
@@ -95,7 +95,7 @@ function getMediji() {
 	//	sekcije: post
 	//	izdanja: izdanjapost,
 	//	kompleti_id: 77,
-	izborkompleta_id: '10'
+	//	izborkompleta_id: '10'
 
 
 	}, function(data){

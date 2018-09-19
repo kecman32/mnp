@@ -962,6 +962,14 @@ function pregledRola() {
 				$stmt->execute($data);
 				$broj = $stmt->fetch(PDO::FETCH_ASSOC);
 				$rola->broj_operatera = $broj['br'];
+
+				$sql = "SELECT ministarstvo.prava_pristupa.sekcijaaplikacije_id, ministarstvo.sekcije_aplikacije.naziv, citanje, izmena, brisanje
+				FROM ministarstvo.prava_pristupa, ministarstvo.sekcije_aplikacije
+				WHERE rola_id = ?
+				AND ministarstvo.prava_pristupa.sekcijaaplikacije_id = ministarstvo.sekcije_aplikacije.sekcijeaplikacije_id;";
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute($data);
+				$rola->sekcije = $stmt->fetchAll();
 			}
 			$rtn = array('status' => 1, 'msg' => 'uspesno', 'result' => $role);
 		}
@@ -979,13 +987,14 @@ function pregledRola() {
 function getProfil() {
 	global $token;
 	$operateri_id = $token->operateri_id;
-	echo $operateri_id;
+	//echo $operateri_id;
 	$sql = "SELECT operateri_id, korisnicko_ime, ime, prezime, email_adresa, ministarstvo.operateri.rola_id, ministarstvo.role.naziv as rola_naziv
 			FROM ministarstvo.operateri, ministarstvo.role
 			WHERE ministarstvo.operateri.rola_id = ministarstvo.role.rola_id
 			AND operateri_id = ?;";
 	$data = [$operateri_id];
-	return exec_and_return($sql, $data);
+	$res = exec_and_return($sql, $data);
+	return $res[0];
 }
 
 
