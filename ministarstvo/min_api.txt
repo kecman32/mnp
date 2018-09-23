@@ -165,3 +165,40 @@ get-profil (dobijanje podataka o ulogovanom korisniku)
 edit-status-kompleta (editovanje statusa kompleta)
 'kompleti_id'
 'status' (0 ili 1)
+
+
+get-SU (za dobijanje skolskeuprave_id i naziv)
+
+
+get-okruzi (dobijanje id i naziv okruga)
+-sa 'skolskeuprave_id' - dobijaju se svi okruzi u toj SU
+-bez icega - svi okruzi
+
+
+get-opstine (dobijanje id i naziv opstine)
+sa 'okrug_id' -  sve opstine u tom okrugu
+-bez icega- sve opstine
+
+
+get-naselja (dobijanje id i naziv naselja)
+-sa 'opstina_id' - sva naselja u toj opstini
+-bez icega- sva naselja
+
+
+get-skole (dobijanje informacije o skolama - skola_id, naziv, naselje, opstina, okrug, skolska uprava)
+-sa 'naselje_id' - sve skole u naselju
+-sa 'opstina_id' - sve skole u opstini
+-sa 'okrug_id' - sve skole u okrugu
+-sa 'skolskeuprave_id' - sve skole u skolskoj upravi
+-bez icega - sve skole
+
+
+get-izbor-kompleta (dobija se izbor kompleta(izborkompleta_id, komplet_id, komplet_naziv, izdavac_naziv) odredjene skole po razredu, predmetu i jeziku)
+'razred_id'
+'jezik_id'
+'predmet_id'
+'skola_id'
+
+
+get-izbor-izdanja (dobijanje informacije o izdanjima iz izabranog kompleta i informacije koje izdanja su izabrana kao obavezna)
+'izborkompleta_id'

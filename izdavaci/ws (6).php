@@ -25,7 +25,53 @@ function exec_and_return($sql, $data=[]) {
 		return $result;
 }
 
+//login izdavaca
+function login() {
+	
+/*	if (isset($_POST['username']) && isset($_POST['password']) && !empty($_POST['username']) && !empty($_POST['password']))
+	{
+		require_once ('../includes/db_connection.php');
 
+		$sql = "SELECT izdavac_id FROM izdavaci.izdavaci WHERE izdavaci.maticni_broj = ? AND izdavaci.lozinka = ?";
+		
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([$_POST['username'], sm_encrypt($_POST['password'])]);
+
+    
+
+$count = $stmt->rowCount();
+
+		if ($count == 0)
+		{
+			$rtn = array('status' => 0,'msg' => 'Proverite vase podatke !');
+		}
+		else if ($count == 1)
+		{
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			$_SESSION["izdavac_id"] = $row["izdavac_id"];
+			
+			$rtn = array('status' => 1, 'msg' => 'Uspesno logovanje');
+		}
+		else
+		{
+			$rtn = array('status' => 0, 'msg' => 'Greska u bazi');
+			exit(json_encode($rtn));
+		}
+	}
+	else
+	{
+		$rtn = array('status' => 0, 'msg' => 'Popunite sva polja !');
+		exit(json_encode($rtn));
+	}
+*/
+    
+    $_SESSION["izdavac_id"] = 1;
+   $rtn = array('status' => 1, 'msg' => 'Uspesno logovanje');
+    
+	$pdo = null;
+	exit(json_encode($rtn));
+}
 
 // Svi razredi osnovne skole
 function getRazredi() {
@@ -40,22 +86,15 @@ function getJezici() {
 }
 
 function getPredmeti() {
-	if (!isset($_POST['razred_id']) || !isset($_POST['jezik_id'])) {
-		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
-		exit(json_encode($rtn));
-	}
-	else {
-
-		$razred_id = $_POST['razred_id'];
-		$jezik_id = $_POST['jezik_id'];
-		$sql = "SELECT osnovna.predmeti.predmet_id, osnovna.predmeti.naziv 
-				FROM osnovna.predmeti, osnovna.predmeti_po_razredima
-				WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
-				AND predmeti_po_razredima.razred_id = ?
-				AND predmeti_po_razredima.jezik_id = ?;";
-		$data = [$razred_id, $jezik_id];
-		return exec_and_return($sql, $data);
-	}
+	$razred_id = $_POST['razred_id'];
+	// $jezik = $_POST['jezik'];
+	$sql = "SELECT osnovna.predmeti.predmet_id, osnovna.predmeti.naziv 
+			FROM osnovna.predmeti, osnovna.predmeti_po_razredima, osnovna.razredi
+			WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
+			AND predmeti_po_razredima.razred_id = osnovna.razredi.razred_id
+			AND osnovna.razredi.razred_id = ?";
+	$data = [$razred_id];
+	return exec_and_return($sql, $data);
 }
 
 //Svi mediji
@@ -163,35 +202,21 @@ function getIzdanje () {
 
 
 function delIzdanje () {
-	if (!isset($_POST['idanja_id'])) {
-		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+	$idanja_id = $_POST['idanja_id'];
+	$sql = "DELETE FROM izdanja.izdanja
+			WHERE idanja_id = ?;";
+
+	require_once ('../includes/db_connection.php');
+
+	$stmt = $pdo->prepare($sql);
+	if ($stmt->execute([$idanja_id])) {
+		$rtn = array('status' => 1, 'msg' => 'Izdanje je uspesno izbrisano !');
 		exit(json_encode($rtn));
 	}
-
-	$idanja_id = $_POST['idanja_id'];
-	require_once ('../includes/db_connection.php');
-	$sql = "SELECT COUNT(*) FROM izdanja.komplati_izdanja WHERE izdanje_id = ?";
-	$data = [$idanja_id];
-	$stmt = $pdo->prepare($sql);
-	$stmt->execute($data);
-	$res = $stmt->fetch(PDO::FETCH_ASSOC);
-	$count = $res['count'];
-	if ($count > 0) {
-		$rtn = array('status' => 0, 'msg' => 'Ne moze se brisati izdanje koje je deo nekog kompleta !');
-	}
 	else {
-
-		$sql = "DELETE FROM izdanja.izdanja	WHERE idanja_id = ?;";
-
-		$stmt = $pdo->prepare($sql);
-		if ($stmt->execute($data)) {
-			$rtn = array('status' => 1, 'msg' => 'Izdanje je uspesno izbrisano !');
-		}
-		else {
-			$rtn = array('status' => 0, 'msg' => 'Nije uspelo brisanje !');
-		}		
-	}
-	exit(json_encode($rtn));
+		$rtn = array('status' => 0, 'msg' => 'Nije uspelo brisanje !');
+		exit(json_encode($rtn));
+	}		
 }
 
 
@@ -364,7 +389,7 @@ function getIzdanjaZaKomplet() {
 
 function setKomplet() {
 
-	if (!isset($_POST['naziv']) || !isset($_POST['resenje']) || !isset($_POST['izdanja']) || !isset($_POST['razred_id']) || !isset($_POST['jezik_id']) || !isset($_POST['predmet_id'])) {
+	if (!isset($_POST['naziv']) || !isset($_POST['resenje']) || !isset($_POST['izdanja'])) {
 		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
 	}
 	else if (empty($_POST['naziv']) || empty($_POST['resenje']) || empty($_POST['izdanja'])) {
@@ -488,79 +513,45 @@ function getKompleti() {
 
 
 function delKomplet() {
-	if (!isset($_POST['kompleti_id'])) {
-		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
-		exit(json_encode($rtn));
-	}
-
 	$komplet_id = $_POST['kompleti_id'];
+
+	$sql = "DELETE FROM izdanja.kompleti
+			WHERE izdanja.kompleti.kompleti_id = :komplet_id;";
+	$data = ['komplet_id' => $komplet_id];
+
 	require_once ('../includes/db_connection.php');
 
-	$sql = "SELECT status FROM izdanja.kompleti WHERE kompleti_id = ?;";
-	$data = [$komplet_id];
 	$stmt = $pdo->prepare($sql);
-	$stmt->execute($data);
-	$res = $stmt->fetch(PDO::FETCH_ASSOC);
-	$status = $res['status'];
-	if ($status == 0) {
+	if ($stmt->execute($data)) {
 
-		$sql = "DELETE FROM izdanja.komplati_izdanja
-				WHERE komplet_id = ?;";
-		$stmt = $pdo->prepare($sql);
-
-		if ($stmt->execute($data)) {
-
-			$sql = "DELETE FROM izdanja.kompleti
-					WHERE izdanja.kompleti.kompleti_id = ?;";
-
-			$stmt = $pdo->prepare($sql);
-			if ($stmt->execute($data)) {
-
-				$rtn = array('status' => 1, 'msg' => 'Uspesno izbrisan komplet !');
-			}
-			else {
-				$rtn = array('status' => 0, 'msg' => 'Problem sa bazom. Probajte ponovo !');
-			}
-		}
-		else {
-			$rtn = array('status' => 0, 'msg' => 'Problem sa bazom. Probajte ponovo !');
-		}
-		
+		$rtn = array('status' => 1, 'msg' => 'Uspesno izbrisan komplet !');
 	}
 	else {
-		$rtn = array('status' => 0, 'msg' => 'Ne moze se brisati odobreni komplet !');
+		$rtn = array('status' => 0, 'msg' => 'Problem sa bazom. Probajte ponovo !');
 	}
-
-
-	
 
 	exit(json_encode($rtn));	
 }
 
 
 switch ($_POST['funct']) {
-	
+	case 'login':
+		login();
+		break;
+
 	case 'get-razredi':
 		$result = getRazredi();
-		$arr = ["razred_id" => 0, "naziv" => "Svi"];
-		$obj = (object) $arr;
-		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 
 	case 'get-jezici':
 		$result = getJezici();
-		$arr = ["jezik_id" => 0, "naziv" => "Svi"];
-		$obj = (object) $arr;
-		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 
 	case 'get-predmeti':
+	//razred_id
 		$result = getPredmeti();
-		$arr = ["predmet_id" => 0, "naziv" => "Svi"];
-		$obj = (object) $arr;
-		array_unshift($result,$obj);
 		exit(json_encode($result));
 		break;
 

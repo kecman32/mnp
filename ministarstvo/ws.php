@@ -59,13 +59,13 @@ function getJezici() {
 
 function getPredmeti() {
 	$razred_id = $_POST['razred_id'];
-	// $jezik = $_POST['jezik'];
+	$jezik_id = $_POST['jezik_id'];
 	$sql = "SELECT osnovna.predmeti.predmet_id, osnovna.predmeti.naziv 
-			FROM osnovna.predmeti, osnovna.predmeti_po_razredima, osnovna.razredi
+			FROM osnovna.predmeti, osnovna.predmeti_po_razredima
 			WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
-			AND predmeti_po_razredima.razred_id = osnovna.razredi.razred_id
-			AND osnovna.razredi.razred_id = ?";
-	$data = [$razred_id];
+			AND predmeti_po_razredima.razred_id = ?
+			AND predmeti_po_razredima.jezik_id = ?;";
+	$data = [$razred_id, $jezik_id];
 	return exec_and_return($sql, $data);
 }
 
@@ -1033,6 +1033,237 @@ function editPassword() {
 
 }
 
+// ministarstvo-skole
+
+function getSU() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	$sql = "SELECT skolskeuprave_id, naziv FROM pratece.skolske_uprave;";
+	return exec_and_return($sql);
+}
+
+function getOkruzi() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (isset($_POST['skolskeuprave_id'])){
+		$su_id = $_POST['skolskeuprave_id'];
+		$sql = "SELECT okrug_id, naziv, skolskauprava_id
+				FROM pratece.okruzi
+				WHERE skolskauprava_id = ? ORDER BY naziv;";
+		$data = [$su_id];
+		return exec_and_return($sql, $data);
+	}
+	else {
+		$sql = "SELECT okrug_id, naziv, skolskauprava_id
+				FROM pratece.okruzi;";
+		return exec_and_return($sql);
+	}
+}
+
+function getOpstine() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (isset($_POST['okrug_id'])){
+		$okrug_id = $_POST['okrug_id'];
+		$sql = "SELECT opstina_id, okrug_id, naziv
+				FROM pratece.opstine
+				WHERE okrug_id = ? ORDER BY naziv;";
+		$data = [$okrug_id];
+		return exec_and_return($sql, $data);
+	}
+	else {
+		$sql = "SELECT opstina_id, okrug_id, naziv
+				FROM pratece.opstine;";
+		return exec_and_return($sql);
+	}
+}
+
+function getNaselja() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (isset($_POST['opstina_id'])){
+		$opstina_id = $_POST['opstina_id'];
+		$sql = "SELECT naselje_id, naziv, opstina_id
+				FROM pratece.naselja
+				WHERE opstina_id = ? ORDER BY naziv;";
+		$data = [$opstina_id];
+		return exec_and_return($sql, $data);
+	}
+	else {
+		$sql = "SELECT naselje_id, naziv, opstina_id
+				FROM pratece.naselja;";
+		return exec_and_return($sql);
+	}
+}
+
+function getSkole() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (isset($_POST['naselje_id'])){
+		$naselje_id = $_POST['naselje_id'];
+		$sql = "SELECT skole.skole.skola_id, skole.skole.naziv, pratece.naselja.naziv as naselje, pratece.opstine.naziv as opstina, pratece.okruzi.naziv as okrug, pratece.skolske_uprave.naziv as SU
+				FROM skole.skole, pratece.naselja, pratece.opstine, pratece.okruzi, pratece.skolske_uprave
+				WHERE pratece.naselja.naselje_id = skole.skole.naselje_id
+				AND pratece.opstine.opstina_id = pratece.naselja.opstina_id
+				AND pratece.okruzi.okrug_id = pratece.opstine.okrug_id
+				AND pratece.skolske_uprave.skolskeuprave_id = pratece.okruzi.skolskauprava_id
+				AND skole.skole.naselje_id = ?;";
+		$data = [$naselje_id];
+		return exec_and_return($sql, $data);
+	}
+	else if (isset($_POST['opstina_id'])) {
+		$opstina_id = $_POST['opstina_id'];
+		$sql = "SELECT skole.skole.skola_id, skole.skole.naziv, pratece.naselja.naziv as naselje, pratece.opstine.naziv as opstina, pratece.okruzi.naziv as okrug, pratece.skolske_uprave.naziv as SU
+				FROM skole.skole, pratece.naselja, pratece.opstine, pratece.okruzi, pratece.skolske_uprave
+				WHERE pratece.naselja.naselje_id = skole.skole.naselje_id
+				AND pratece.opstine.opstina_id = pratece.naselja.opstina_id
+				AND pratece.okruzi.okrug_id = pratece.opstine.okrug_id
+				AND pratece.skolske_uprave.skolskeuprave_id = pratece.okruzi.skolskauprava_id
+				AND pratece.naselja.opstina_id = ?;";
+		$data = [$opstina_id];
+		return exec_and_return($sql, $data);
+	}
+	else if (isset($_POST['okrug_id'])) {
+		$okrug_id = $_POST['okrug_id'];
+		$sql = "SELECT skole.skole.skola_id, skole.skole.naziv, pratece.naselja.naziv as naselje, pratece.opstine.naziv as opstina, pratece.okruzi.naziv as okrug, pratece.skolske_uprave.naziv as SU
+				FROM skole.skole, pratece.naselja, pratece.opstine, pratece.okruzi, pratece.skolske_uprave
+				WHERE pratece.naselja.naselje_id = skole.skole.naselje_id
+				AND pratece.opstine.opstina_id = pratece.naselja.opstina_id
+				AND pratece.okruzi.okrug_id = pratece.opstine.okrug_id
+				AND pratece.skolske_uprave.skolskeuprave_id = pratece.okruzi.skolskauprava_id
+				AND pratece.opstine.okrug_id = ?;";
+		$data = [$okrug_id];
+		return exec_and_return($sql, $data);
+	}
+	else if (isset($_POST['skolskeuprave_id'])) {
+		$skolskeuprave_id = $_POST['skolskeuprave_id'];
+		$sql = "SELECT skole.skole.skola_id, skole.skole.naziv, pratece.naselja.naziv as naselje, pratece.opstine.naziv as opstina, pratece.okruzi.naziv as okrug, pratece.skolske_uprave.naziv as SU
+				FROM skole.skole, pratece.naselja, pratece.opstine, pratece.okruzi, pratece.skolske_uprave
+				WHERE pratece.naselja.naselje_id = skole.skole.naselje_id
+				AND pratece.opstine.opstina_id = pratece.naselja.opstina_id
+				AND pratece.okruzi.okrug_id = pratece.opstine.okrug_id
+				AND pratece.skolske_uprave.skolskeuprave_id = pratece.okruzi.skolskauprava_id
+				AND pratece.okruzi.skolskauprava_id = ?;";
+		$data = [$skolskeuprave_id];
+		return exec_and_return($sql, $data);
+	}
+	else {
+		$sql = "SELECT skole.skole.skola_id, skole.skole.naziv, pratece.naselja.naziv as naselje, pratece.opstine.naziv as opstina, pratece.okruzi.naziv as okrug, pratece.skolske_uprave.naziv as SU
+				FROM skole.skole, pratece.naselja, pratece.opstine, pratece.okruzi, pratece.skolske_uprave
+				WHERE pratece.naselja.naselje_id = skole.skole.naselje_id
+				AND pratece.opstine.opstina_id = pratece.naselja.opstina_id
+				AND pratece.okruzi.okrug_id = pratece.opstine.okrug_id
+				AND pratece.skolske_uprave.skolskeuprave_id = pratece.okruzi.skolskauprava_id;";
+		
+		return exec_and_return($sql);
+	}
+}
+
+
+function getIzborKompleta() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['razred_id']) || !isset($_POST['jezik_id']) || !isset($_POST['predmet_id']) || !isset($_POST['skola_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+		exit(json_encode($rtn));
+	}
+	else {
+		$_POST['razred_id'] > 0 ? $razred_id = $_POST['razred_id'] :	$razred_id = "%";
+		$_POST['jezik_id'] > 0 ? $jezik_id = $_POST['jezik_id'] : $jezik_id = "%";
+		$_POST['predmet_id'] > 0 ? $predmet_id = $_POST['predmet_id'] : $predmet_id = "%";
+		$skola_id = $_POST['skola_id'];
+
+		$sql = "SELECT skole.izborkompleta.izborkompleta_id,
+						skole.izborkompleta.komplet_id,
+						izdanja.kompleti.naziv as komplet_naziv,
+						resenje_ministarstva,
+						izdavaci.izdavaci.naziv as izdavac_naziv
+
+				FROM skole.izborkompleta, izdanja.kompleti, izdavaci.izdavaci
+				WHERE izdanja.kompleti.kompleti_id = skole.izborkompleta.komplet_id
+				AND izdavaci.izdavaci.izdavac_id = izdanja.kompleti.izdavac_id
+				AND skole.izborkompleta.razred_id::text LIKE :razred_id
+				AND skole.izborkompleta.jezik_id::text LIKE :jezik_id
+				AND skole.izborkompleta.predmet_id::text LIKE :predmet_id
+				AND skole.izborkompleta.skola_id = :skola_id;";
+
+		$data = ['razred_id' => $razred_id, 'jezik_id' => $jezik_id, 'predmet_id' => $predmet_id, 'skola_id' => $skola_id];
+		return exec_and_return($sql, $data);
+
+
+	}
+
+
+}
+
+
+function getIzborIzdanja() {
+	if (!checkSkole('citanje')) {
+		$rtn = array('status' => 0, 'msg' => 'Nemate ovlascenje !');
+		exit(json_encode($rtn));
+	}
+	if (!isset($_POST['izborkompleta_id'])) {
+		$rtn = array('status' => 0, 'msg' => 'Nisu poslata sva polja !');
+		exit(json_encode($rtn));
+	}
+	else {
+		$izborkompleta_id = $_POST['izborkompleta_id'];
+		$sql = "SELECT komplet_id FROM skole.izborkompleta WHERE izborkompleta_id = ?;";
+		$data = [$izborkompleta_id];
+		require_once ('../includes/db_connection.php');
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		$komplet_id = $res['komplet_id'];
+
+		$sql = "SELECT izdanja.izdanja.idanja_id, izdanja.izdanja.naziv, autori, izdanja.izdanja.resenje_ministarstva, naziv_udzb_jedinice, izdanja.izdanja.formatizdanja_id, pratece.formati_izdanja.naziv as format, broj_strana, godina_izdanja, izdanja.izdanja.mediji_id, pratece.mediji.naziv as mediji
+				FROM izdanja.izdanja, pratece.formati_izdanja, pratece.mediji, izdanja.komplati_izdanja
+				WHERE pratece.formati_izdanja.formatizdanja_id = izdanja.izdanja.formatizdanja_id
+				AND pratece.mediji.mediji_id = izdanja.izdanja.mediji_id
+				AND izdanja.komplati_izdanja.izdanje_id = izdanja.izdanja.idanja_id
+				AND izdanja.komplati_izdanja.komplet_id = ?;";
+		$data = [$komplet_id];
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$sva_izdanja = $stmt->fetchAll();
+		//print_r($sva_izdanja);
+
+		foreach ($sva_izdanja as $izdanje) {
+			$izdanja_id = $izdanje->idanja_id;
+			$sql = "SELECT COUNT(*)	FROM skole.izborizdanja
+					WHERE izborkompleta_id = ?
+					AND izdanje_id = ?;";
+			$data = [$izborkompleta_id, $izdanja_id];
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute($data);
+			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			$count = $res['count'];
+			if ($count > 0) {
+				$izdanje->obavezno = 'Да';
+			}
+			else {
+				$izdanje->obavezno = 'Не';
+			}
+		}
+		return $sva_izdanja;
+
+
+	}
+}
+
+
 
 switch ($_POST['funct']) {
 	
@@ -1188,6 +1419,42 @@ switch ($_POST['funct']) {
 		$result = getProfil();
 		exit(json_encode($result));
 		break;
+
+	case 'get-SU':
+		$result = getSU();
+		exit(json_encode($result));
+		break;
+
+	case 'get-okruzi':
+		$result = getOkruzi();
+		exit(json_encode($result));
+		break;
+
+	case 'get-opstine':
+		$result = getOpstine();
+		exit(json_encode($result));
+		break;
+
+	case 'get-naselja':
+		$result = getNaselja();
+		exit(json_encode($result));
+		break;
+
+	case 'get-skole':
+		$result = getSkole();
+		exit(json_encode($result));
+		break;
+
+	case 'get-izbor-kompleta':
+		$result = getIzborKompleta();
+		exit(json_encode($result));
+		break;
+
+	case 'get-izbor-izdanja':
+		$result = getIzborIzdanja();
+		exit(json_encode($result));
+		break;
+	
 
 	default:
 		$result = ['status' => 0, 'msg' => 'unknown function'];

@@ -7,6 +7,7 @@ require_once("../includes/jwt_helper.php");
 require_once("../config/security.php");
 require_once("../includes/min_provera.php");
 require_once ('../includes/db_connection.php');
+
 if (!isset($_POST['key'])){
 	exit();
 	die();

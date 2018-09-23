@@ -44,10 +44,10 @@ var izdanjapost = JSON.stringify(izdanja);
 
 function getMediji() {
 	//var izdanja = [1, 2, 3];
-	$.post('../skole/ws.php',{
+	$.post('../izdavaci/ws.php',{
 		funct: 'get-predmeti',
-		razred_id: '1',
-		jezik_id: '1',
+		razred_id: 1,
+		jezik_id: 1,
 	// 	predmet_id: '1',
 	// 	status: -1,
 	// 	naziv: 'test naziv 3',
@@ -59,7 +59,7 @@ function getMediji() {
 	// 	mediji_id: 1,
 	// 	br_strana: 54,
 	//    pretraga: '',
-	// 	izdanja_id: 1
+	// 	idanja_id: 55
 	//	naziv: 'test izdavac',
 	//	pib: '12345678',
 	//	maticni_broj: '42345678',
@@ -73,7 +73,7 @@ function getMediji() {
 	//	naziv: 'test naziv kompleta 9',
 	//	resenje: 'test resenje 9',
 	//	izdanja: izdanja,
-	//	kompleti_id: 72,
+	//	kompleti_id: 78,
 	//	username: '1234567',
 	//	password: '123457',
 	//	izdavac_id: '6',
@@ -95,7 +95,12 @@ function getMediji() {
 	//	sekcije: post
 	//	izdanja: izdanjapost,
 	//	kompleti_id: 77,
-	//	izborkompleta_id: '10'
+	//	izborkompleta_id: 8,
+	//	skolskeuprave_id: 1,
+	//	okrug_id: 2,
+	//	opstina_id: 5,
+	//	naselje_id: 2,
+	//	skola_id: 1,
 
 
 	}, function(data){

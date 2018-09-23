@@ -1,0 +1,109 @@
+get-razredi
+
+get-jezici
+
+get-predmeti
+'razred_id'
+'jezik_id'
+
+
+get-mediji
+
+
+get-formati
+
+
+set-izdanje (unos izdanja u bazu)
+'razred_id'
+'jezik_id'
+'predmet_id'
+'naziv'
+'autori'
+'naziv_udzb_jedinice'
+'resenje'
+'godina'
+'mediji_id'
+'formatizdanja_id'
+
+
+get-all-izdanja (dobiju se sva izdanja logovanog izdavaca po razredu, jeziku, predmetu, pretrazi)
+'razred_id'
+'jezik_id'
+'predmet_id'
+'pretraga'
+
+
+get-izdanje (dobijaju se informacije o odredjenom izdanju)
+'izdanja_id'
+
+
+del-izdanje (brisanje izdanja)
+'izdanja_id'
+
+
+edit-izdanje 
+'izdanja_id'
+'razred_id'
+'jezik_id'
+'predmet_id'
+'naziv'
+'autori'
+'naziv_udzb_jedinice'
+'resenje'
+'godina'
+'mediji_id'
+'formatizdanja_id'
+
+
+get-profil-izdavaca
+
+
+edit-profil-izdavaca
+'naziv'
+'pib'
+'maticni_broj'
+'grad_id'
+'lozinka'
+'potvrda_lozinke'
+'adresa'
+'email'
+'telefon'
+
+get-gradovi (dovijaju se svi gradovi)
+
+get-grad
+'grad_id'
+
+
+get-izdanja-za-komplet (sva izdanja koja su za dati razred, predmet i jezik)
+'razred_id'
+'jezik_id'
+'predmet_id'
+
+
+set-komplet (formiranje kompleta)
+'naziv'
+'resenje'
+'izdanja' (niz izdanje_id-eva koji postaju deo kompleta)
+'razred_id'
+'jezik_id'
+'predmet_id'
+
+
+get-komplet (info o kompletu)
+'kompleti_id'
+
+
+get-izdanja-iz-kompleta (info o izdanjima iz kompleta)
+'kompleti_id'
+
+
+get-kompleti (svi kompleti koji odgovaraju po razredu, jeziku, predmetu i pretrazi)
+'razred_id'
+'jezik_id'
+'predmet_id'
+'pretraga'
+
+
+del-komplet (brisanje kompleta (samo onaj koji nije odobren))
+'kompleti_id'
