@@ -16,32 +16,72 @@
     <title>predmeti po razredima i jezicima</title>
   </head>
   <body>
-    
-    <div class="container-fluid" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="container mt-4">
+    	<h3>Uredjivanje predmeta po razredima i jezicima nastave</h3>
+    	
+    </div>
+    <div class="container" style="margin-top: 50px; margin-bottom: 50px;">
+    	
     	<div class="row">
-    		<div class="col-md-2">
-    			<h4>Razred</h4>
-    			<div class="container">
-    				<select class="custom-select" name="raz" id="razred">
-    					
-    				</select>
-    			</div>
-    		</div>
     		<div class="col-md-3">
-    			<h4>Jezik</h4>
-    			<div class="container">
-    				<select class="custom-select" name="jez" id="jezik">
+    			<h5>Razred</h5>
+    			<div class="container p-0">
+    				<select class="custom-select" name="raz" id="razred" style="width: 150px;">
     					
     				</select>
-
-    				<input type="button" class="btn btn-danger" value="Ubaci u bazu" id="sub" style="margin-top: 150px;">
     			</div>
     		</div>
-    		<div class="col-md-7">
-    			<h4>Predmet</h4>
-    			<div class="container" id="predmet">
+    		<div class="col-md-5">
+    			<h5>Jezik</h5>
+    			<div class="container p-0">
+    				<select class="custom-select" name="jez" id="jezik"  style="width: 200px">
+    					
+    				</select>
+	
     				
     			</div>
+    		</div>
+    		<div class="col-md-4">
+    			<div class="container text-center mt-4">
+					<input type="button" class="btn btn-primary" value="Ubaci u bazu" id="sub">
+		    		<p  id="poruka" class="text-success mt-3"></p>
+		    	</div>
+    		</div>
+    	</div>
+    	<div class="row mt-4">
+    		<div class="col-md-12">
+    			<h5>Predmet</h5>
+    			<div class="container mt-3 p-0" id="predmet" style="column-count: 3; font-size: 18px; column-rule: 1px solid lightgray;">
+    				
+    			</div>
+    		</div>
+    	</div>
+    </div>
+    <hr>
+    <div class="container" style="margin-top: 50px; margin-bottom: 50px;">
+    	<h3 class="mb-4">Dodavanje predmeta</h3>
+    	<div class="row">
+    		<div class="col-md-8">
+    			<input type="text" class="form-control" id="predmet_unos" placeholder="Upisite predmet">
+    		</div>
+    		<div class="col-md-4 text-center">
+    			<input type="button" class="btn btn-primary" value="Ubaci novi predmet u bazu" id="sub_predmet">
+		    	<p  id="poruka_unos" class="text-success mt-3"></p>
+    		</div>
+    	</div>
+    </div>
+    <hr>
+    <div class="container" style="margin-top: 50px; margin-bottom: 50px;">
+    	<h3 class="mb-4">Uklanjanje sa liste aktivnih predmeta</h3>
+    	<div class="row">
+    		<div class="col-md-8">
+    			<select class="custom-select" name="pred-brisanje" id="predmet_brisanje">
+    					
+    			</select>
+    		</div>
+    		<div class="col-md-4 text-center">
+    			<input type="button" class="btn btn-primary" value="Ukloni predmet" id="del_predmet">
+		    	<p  id="poruka_del" class="text-success mt-3"></p>
     		</div>
     	</div>
     </div>
@@ -103,6 +143,27 @@ jQuery(document).ready(function($) {
 		upisUBazu(razred, jezik, nizPredmeta);
 		}
 	});
+
+
+	$('#sub_predmet').click(function(event) {
+		var novi_predmet = $('#predmet_unos').val();
+		if (novi_predmet !== "") {
+			noviPredmet(novi_predmet);
+		}
+
+	});
+
+
+	$('#del_predmet').click(function(event) {
+		var del_predmet = $('#predmet_brisanje').val();
+		console.log(del_predmet);
+		if (del_predmet !== "") {
+			delPredmet(del_predmet);
+		}
+
+	});
+
+
 });
 
 function getRazredi() {
@@ -157,12 +218,16 @@ function getPredmeti() {
 			console.log(data);
 			
 			var display_predmeti = '';
+			var display_predmeti_brisanje = '<option value="0">Izaberi...</option>';
+
 
 			for (var i = 0; i < data.length; i++) {
-				display_predmeti += '<input type="checkbox" name="pred'+i+'" id="predmet'+i+'" value="'+data[i].predmet_id+'"> '+data[i].naziv+'</br>';
+				display_predmeti += '<input class="mb-2" type="checkbox" name="pred'+i+'" id="predmet'+i+'" value="'+data[i].predmet_id+'"> '+data[i].naziv+'</br>';
+				display_predmeti_brisanje += '<option value="'+data[i].predmet_id+'"> '+data[i].naziv+'</option>';
 			}
 			predmeti_br = i;
 			$("#predmet").html(display_predmeti);
+			$("#predmet_brisanje").html(display_predmeti_brisanje);
 			
 			
 
@@ -212,6 +277,10 @@ function izabraniPredmeti(razred, jezik) {
 }	
 
 function resetCheck() {
+	$('#poruka').html('');
+	$('#poruka_unos').html('');
+	$('#poruka_del').html('');
+
 	for (var i = 0; i < predmeti_br; i++) {
 		var ppp = $('#predmet'+i);
 		ppp.removeAttr('checked');
@@ -232,11 +301,57 @@ function upisUBazu(razred, jezik, nizPredmeta) {
 		},
 		function(data, textStatus) {
 			console.log(data);
+			if (data.status) {
+				$('#poruka').html(data.msg);
+			}
 			
-			
-
 	}, "json");
 }
+
+
+function noviPredmet(novi_predmet) {
+	$.post('ws_predmeti.php', {
+			key: 'novi_predmet',
+			novi_predmet: novi_predmet			
+		},
+		function(data, textStatus) {
+			console.log(data);
+			if (data.status) {
+				$('#poruka_unos').removeClass('text-danger').addClass('text-success').html(data.msg);
+				getPredmeti();
+
+			}
+			else {
+				$('#poruka_unos').removeClass('text-success').addClass('text-danger').html(data.msg);
+
+			}
+			
+	}, "json");
+}
+
+function delPredmet(del_predmet) {
+	$.post('ws_predmeti.php', {
+			key: 'del_predmet',
+			del_predmet: del_predmet			
+		},
+		function(data, textStatus) {
+			console.log(data);
+			if (data.status) {
+				$('#poruka_del').removeClass('text-danger').addClass('text-success').html(data.msg);
+				getPredmeti();
+
+			}
+			else {
+				$('#poruka_del').removeClass('text-success').addClass('text-danger').html(data.msg);
+
+			}
+			
+	}, "json");
+}
+
+
+
+
 </script>
   </body>
 </html>

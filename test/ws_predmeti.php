@@ -32,7 +32,7 @@ if ($_POST['key'] == 'jezici'){
 
 
 if ($_POST['key'] == 'predmeti'){
-	$sql = "SELECT * FROM osnovna.predmeti ORDER BY predmet_id ASC";
+	$sql = "SELECT * FROM osnovna.predmeti WHERE aktivan = 1 ORDER BY predmet_id ASC";
 	$stmt = $pdo->prepare($sql);
 	$stmt->execute();
 	$result = $stmt->fetchAll();
@@ -48,7 +48,8 @@ if ($_POST['key'] == 'izabrani-predmeti'){
 			FROM osnovna.predmeti, osnovna.predmeti_po_razredima
 			WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
 			AND predmeti_po_razredima.razred_id = ?
-			AND predmeti_po_razredima.jezik_id = ?;";
+			AND predmeti_po_razredima.jezik_id = ?
+			AND osnovna.predmeti.aktivan = 1;";
 	$stmt = $pdo->prepare($sql);
 	$data = [$razred_id, $jezik_id];
 	$stmt->execute($data);
@@ -66,6 +67,7 @@ if ($_POST['key'] == 'upis') {
 			WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
 			AND predmeti_po_razredima.razred_id = ?
 			AND predmeti_po_razredima.jezik_id = ?
+			AND osnovna.predmeti.aktivan = 1
 			ORDER BY osnovna.predmeti.predmet_id ASC;";
 	$data = [$razred_id, $jezik_id];
 	$stmt = $pdo->prepare($sql);
@@ -101,6 +103,59 @@ if ($_POST['key'] == 'upis') {
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute($data);
 	}
-	$rtn = array('status' => 1, 'msg' => 'uspesno azurirana baza !');
+	$rtn = array('status' => 1, 'msg' => 'Uspesno azurirana baza !');
+	exit(json_encode($rtn));
+}
+
+
+if ($_POST['key'] == 'novi_predmet') {
+	$novi_predmet = $_POST['novi_predmet'];
+	if (empty($novi_predmet)) {
+		$rtn = array('status' => 0, 'msg' => 'Morate popuniti naziv predmeta!');
+	}
+	else {
+		$sql = "SELECT predmet_id, naziv, aktivan FROM osnovna.predmeti
+				WHERE naziv = ?;";
+		$data = [$novi_predmet];
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$count = $stmt->rowCount();
+		if ($count > 0) {
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+			if ($row['aktivan'] == 1) {
+				$rtn = array('status' => 0, 'msg' => 'Vec postoji predmet sa tim nazivom!');
+			}
+			else {
+				$sql = "UPDATE osnovna.predmeti	SET aktivan = 1	WHERE naziv = ?;";
+				$stmt = $pdo->prepare($sql);
+				$stmt->execute($data);
+				$rtn = array('status' => 1, 'msg' => 'Uspesno reaktiviran predmet!');
+			}
+		}
+		else {
+			
+			$sql = "INSERT INTO osnovna.predmeti(naziv)	VALUES (?);";
+			$stmt = $pdo->prepare($sql);
+			$stmt->execute($data);
+			$rtn = array('status' => 1, 'msg' => 'Uspesno unesen novi predmet!');
+		}
+				
+	}
+	exit(json_encode($rtn));
+}
+
+
+if ($_POST['key'] == 'del_predmet') {
+	$del_predmet = $_POST['del_predmet'];
+	if (empty($del_predmet)) {
+		$rtn = array('status' => 0, 'msg' => 'Morate popuniti naziv predmeta!');
+	}
+	else {
+		$sql = "UPDATE osnovna.predmeti	SET aktivan = 0	WHERE predmet_id = ?;";
+		$data = [$del_predmet];
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute($data);
+		$rtn = array('status' => 1, 'msg' => 'Uspesno deaktiviran predmet!');
+	}
 	exit(json_encode($rtn));
 }

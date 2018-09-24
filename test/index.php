@@ -38,17 +38,17 @@ var forma = {
 		'brisanje': false
 	}
 };
-var izdanja = [55, 56, 57];
+var izdanja = [55, 57];
 var post = JSON.stringify(forma);
 var izdanjapost = JSON.stringify(izdanja);
 
 function getMediji() {
 	//var izdanja = [1, 2, 3];
-	$.post('../izdavaci/ws.php',{
-		funct: 'get-predmeti',
-		razred_id: 1,
-		jezik_id: 1,
-	// 	predmet_id: '1',
+	$.post('../skole/ws.php',{
+		funct: 'get-izbor-izdanja',
+	//	razred_id: 1,
+	//	jezik_id: 1,
+	// 	predmet_id: 1,
 	// 	status: -1,
 	// 	naziv: 'test naziv 3',
 	// 	autori: 'test autorr, tesst autor 22',
@@ -95,7 +95,7 @@ function getMediji() {
 	//	sekcije: post
 	//	izdanja: izdanjapost,
 	//	kompleti_id: 77,
-	//	izborkompleta_id: 8,
+		izborkompleta_id: 13,
 	//	skolskeuprave_id: 1,
 	//	okrug_id: 2,
 	//	opstina_id: 5,

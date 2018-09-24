@@ -65,7 +65,8 @@ function getPredmeti() {
 			FROM osnovna.predmeti, osnovna.predmeti_po_razredima
 			WHERE osnovna.predmeti.predmet_id = osnovna.predmeti_po_razredima.predmet_id
 			AND predmeti_po_razredima.razred_id = ?
-			AND predmeti_po_razredima.jezik_id = ?;";
+			AND predmeti_po_razredima.jezik_id = ?
+			AND osnovna.predmeti.aktivan = 1;";
 	$data = [$razred_id, $jezik_id];
 	return exec_and_return($sql, $data);
 }
@@ -369,6 +370,11 @@ switch ($_POST['funct']) {
 	
 	case 'get-razredi':
 		$result = getRazredi();
+		exit(json_encode($result));
+		break;
+
+	case 'get-razredi-svi':
+		$result = getRazredi();
 		$arr = ["razred_id" => 0, "naziv" => "Svi"];
 		$obj = (object) $arr;
 		array_unshift($result,$obj);
@@ -377,6 +383,11 @@ switch ($_POST['funct']) {
 
 	case 'get-jezici':
 		$result = getJezici();
+		exit(json_encode($result));
+		break;
+
+	case 'get-jezici-svi':
+		$result = getJezici();
 		$arr = ["jezik_id" => 0, "naziv" => "Svi"];
 		$obj = (object) $arr;
 		array_unshift($result,$obj);
@@ -384,6 +395,11 @@ switch ($_POST['funct']) {
 		break;
 
 	case 'get-predmeti':
+		$result = getPredmeti();
+		exit(json_encode($result));
+		break;
+
+	case 'get-predmeti-svi':
 		$result = getPredmeti();
 		$arr = ["predmet_id" => 0, "naziv" => "Svi"];
 		$obj = (object) $arr;
